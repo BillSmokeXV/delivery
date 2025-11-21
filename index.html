@@ -1,0 +1,1999 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Clientes - Giba Salgados</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    
+    html {
+      height: 100%;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .slide-in {
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.2s ease-out;
+    }
+    
+    .modal-backdrop {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+    }
+    
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-primary {
+      transition: all 0.2s ease;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    
+    .input-field {
+      transition: all 0.2s ease;
+    }
+    
+    .input-field:focus {
+      transform: scale(1.01);
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+    }
+    
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      min-width: 300px;
+    }
+    
+    @keyframes toastSlide {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    .toast-animation {
+      animation: toastSlide 0.3s ease-out;
+    }
+    
+    .pizza-icon {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    }
+    
+    .stats-card {
+      background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%);
+    }
+    
+    .tab-active {
+      border-bottom: 3px solid #f97316;
+      color: #f97316;
+    }
+    
+    .autocomplete-item {
+      transition: all 0.2s ease;
+    }
+    
+    .autocomplete-item:hover {
+      background: #fff7ed;
+      transform: translateX(4px);
+    }
+    
+    .status-badge {
+      transition: all 0.3s ease;
+    }
+    
+    .pulse-animation {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: .7;
+      }
+    }
+    
+    .whatsapp-btn {
+      transition: all 0.2s ease;
+    }
+    
+    .whatsapp-btn:hover {
+      transform: scale(1.05);
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="min-h-full">
+  <div id="app" class="min-h-full" style="background: linear-gradient(135deg, #fff7ed 0%, #ffffff 50%, #fffbeb 100%);"><!-- Header -->
+   <header class="pizza-icon text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6">
+     <div class="flex items-center justify-between flex-wrap gap-4">
+      <div class="flex items-center space-x-4">
+       <div class="bg-white rounded-full p-3 shadow-lg"><span class="text-5xl">🥟</span>
+       </div>
+       <div>
+        <h1 id="nome-pizzaria" class="text-3xl font-bold">GIBA SALGADOS</h1>
+        <p id="slogan" class="text-orange-100 text-sm">Qualidade e sabor em cada salgado</p>
+       </div>
+      </div>
+      <div class="flex space-x-3"><button id="btn-novo-cliente" class="btn-primary bg-white text-orange-600 px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg"> <span id="texto-btn-adicionar">+ Novo Cliente</span> </button> <button id="btn-promocoes" class="bg-orange-700 hover:bg-orange-800 text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all"> <span id="texto-btn-promocoes">📢 Enviar Promoções</span> </button>
+      </div>
+     </div>
+    </div>
+   </header><!-- Tabs -->
+   <div class="container mx-auto px-4 pt-6">
+    <div class="bg-white rounded-t-xl shadow-md">
+     <div class="flex border-b border-gray-200"><button id="tab-clientes" class="tab-active flex-1 px-6 py-4 font-semibold text-gray-700 hover:bg-gray-50 transition-all"> 👥 Clientes </button> <button id="tab-pedidos" class="flex-1 px-6 py-4 font-semibold text-gray-700 hover:bg-gray-50 transition-all"> 🥟 Pedidos </button>
+     </div>
+    </div>
+   </div><!-- Clientes Tab Content -->
+   <div id="content-clientes" class="container mx-auto px-4"><!-- Stats -->
+    <div class="py-6">
+     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="stats-card p-6 rounded-xl shadow-md">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-gray-600 text-sm font-medium">Total de Clientes</p>
+         <p id="total-clientes" class="text-3xl font-bold text-orange-600 mt-1">0</p>
+        </div>
+        <div class="bg-orange-100 p-3 rounded-lg">
+         <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+         </svg>
+        </div>
+       </div>
+      </div>
+      <div class="stats-card p-6 rounded-xl shadow-md">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-gray-600 text-sm font-medium">Recebem Promoções</p>
+         <p id="total-promocoes" class="text-3xl font-bold text-orange-600 mt-1">0</p>
+        </div>
+        <div class="bg-orange-100 p-3 rounded-lg">
+         <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+         </svg>
+        </div>
+       </div>
+      </div>
+      <div class="stats-card p-6 rounded-xl shadow-md">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-gray-600 text-sm font-medium">Cadastros Hoje</p>
+         <p id="cadastros-hoje" class="text-3xl font-bold text-orange-600 mt-1">0</p>
+        </div>
+        <div class="bg-orange-100 p-3 rounded-lg">
+         <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+         </svg>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div><!-- Search Bar -->
+    <div class="pb-4">
+     <div class="bg-white rounded-xl shadow-md p-4">
+      <div class="flex items-center space-x-3">
+       <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+       </svg><input type="text" id="search-input" placeholder="Buscar cliente por nome, telefone ou endereço..." class="flex-1 outline-none text-gray-700">
+      </div>
+     </div>
+    </div><!-- Client Cards -->
+    <div class="pb-8">
+     <div id="clientes-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><!-- Cards serão inseridos aqui -->
+     </div>
+     <div id="empty-state" class="text-center py-16 hidden">
+      <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+      <h3 class="text-xl font-semibold text-gray-600 mb-2">Nenhum cliente cadastrado</h3>
+      <p class="text-gray-500">Clique em "Novo Cliente" para começar</p>
+     </div>
+    </div>
+   </div><!-- Pedidos Tab Content -->
+   <div id="content-pedidos" class="container mx-auto px-4 hidden"><!-- Stats Pedidos -->
+    <div class="py-6">
+     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="stats-card p-6 rounded-xl shadow-md">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-gray-600 text-sm font-medium">Pendentes</p>
+         <p id="total-pendentes" class="text-3xl font-bold text-orange-600 mt-1">0</p>
+        </div>
+        <div class="bg-orange-100 p-3 rounded-lg">
+         <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+         </svg>
+        </div>
+       </div>
+      </div>
+      <div class="stats-card p-6 rounded-xl shadow-md">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-gray-600 text-sm font-medium">Prontos</p>
+         <p id="total-prontos" class="text-3xl font-bold text-blue-600 mt-1">0</p>
+        </div>
+        <div class="bg-blue-100 p-3 rounded-lg">
+         <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+         </svg>
+        </div>
+       </div>
+      </div>
+      <div class="stats-card p-6 rounded-xl shadow-md">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-gray-600 text-sm font-medium">Para Entrega</p>
+         <p id="total-entrega" class="text-3xl font-bold text-purple-600 mt-1">0</p>
+        </div>
+        <div class="bg-purple-100 p-3 rounded-lg">
+         <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+         </svg>
+        </div>
+       </div>
+      </div>
+      <div class="stats-card p-6 rounded-xl shadow-md">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-gray-600 text-sm font-medium">Total Pedidos</p>
+         <p id="total-pedidos" class="text-3xl font-bold text-orange-600 mt-1">0</p>
+        </div>
+        <div class="bg-orange-100 p-3 rounded-lg">
+         <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+         </svg>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div><!-- Novo Pedido Button -->
+    <div class="pb-4"><button id="btn-novo-pedido" class="w-full btn-primary pizza-icon text-white px-6 py-4 rounded-xl font-semibold shadow-md hover:shadow-lg text-lg"> + Novo Pedido </button>
+    </div><!-- Pedidos List -->
+    <div class="pb-8 space-y-4" id="pedidos-container"><!-- Pedidos serão inseridos aqui -->
+    </div>
+    <div id="empty-pedidos" class="text-center py-16 hidden">
+     <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+     </svg>
+     <h3 class="text-xl font-semibold text-gray-600 mb-2">Nenhum pedido registrado</h3>
+     <p class="text-gray-500">Clique em "Novo Pedido" para começar</p>
+    </div>
+   </div><!-- Modal Formulário Cliente -->
+   <div id="modal-form" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="modal-backdrop absolute inset-0" onclick="fecharModal()"></div>
+    <div class="relative min-h-full flex items-center justify-center p-4">
+     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90%] overflow-y-auto slide-in">
+      <div class="pizza-icon text-white p-6 rounded-t-2xl">
+       <h2 id="modal-titulo" class="text-2xl font-bold">Novo Cliente</h2>
+      </div>
+      <form id="form-cliente" class="p-6 space-y-4">
+       <div><label class="block text-gray-700 font-semibold mb-2">Nome Completo *</label> <input type="text" id="input-nome" required class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-red-500" placeholder="Ex: João Silva">
+       </div>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label class="block text-gray-700 font-semibold mb-2">Telefone *</label> <input type="tel" id="input-telefone" required class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-red-500" placeholder="(11) 98765-4321">
+        </div>
+        <div><label class="block text-gray-700 font-semibold mb-2">WhatsApp *</label> <input type="tel" id="input-whatsapp" required class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-red-500" placeholder="(11) 98765-4321">
+        </div>
+       </div>
+       <div><label class="block text-gray-700 font-semibold mb-2">Endereço Completo *</label> <textarea id="input-endereco" required rows="3" class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-red-500" placeholder="Rua, número, complemento, cidade"></textarea>
+       </div>
+       <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4"><label class="block text-gray-700 font-semibold mb-2">🏘️ Bairro e Taxa de Entrega *</label>
+        <div class="relative mb-3"><input type="text" id="input-bairro-cliente" required class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-blue-500" placeholder="Digite o bairro..." autocomplete="off">
+         <div id="autocomplete-bairros-cliente" class="absolute w-full bg-white border-2 border-gray-200 rounded-lg mt-1 max-h-48 overflow-y-auto shadow-lg hidden z-10"><!-- Sugestões de bairros aparecerão aqui -->
+         </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+         <div><label class="block text-xs text-gray-600 mb-1">Taxa de Entrega (R$)</label> <input type="number" id="input-taxa-cliente" step="0.01" min="0" value="0" required class="input-field w-full px-3 py-2 border-2 border-gray-200 rounded-lg outline-none focus:border-blue-500 font-bold text-blue-600" placeholder="0.00">
+         </div>
+         <div class="flex items-end"><button type="button" onclick="salvarBairroTaxaCliente()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-all"> 💾 Salvar Bairro </button>
+         </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">💡 O bairro e taxa ficam salvos para os próximos cadastros!</p>
+       </div>
+       <div><label class="block text-gray-700 font-semibold mb-2">Salgados Favoritos</label> <input type="text" id="input-pizzas" class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-orange-500" placeholder="Ex: Coxinha, Bolinha de Queijo, Risole">
+       </div>
+       <div><label class="block text-gray-700 font-semibold mb-2">Doces Favoritos</label> <input type="text" id="input-esfirras" class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-orange-500" placeholder="Ex: Brigadeiro, Beijinho, Romeu e Julieta">
+       </div>
+       <div class="bg-orange-50 p-4 rounded-lg"><label class="flex items-center space-x-3 cursor-pointer"> <input type="checkbox" id="input-promocoes" checked class="w-5 h-5 text-orange-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-orange-500"> <span class="text-gray-700 font-medium">Cliente deseja receber promoções</span> </label>
+       </div>
+       <div class="flex space-x-3 pt-4"><button type="button" onclick="fecharModal()" class="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all"> Cancelar </button> <button type="submit" id="btn-salvar" class="flex-1 btn-primary pizza-icon text-white px-6 py-3 rounded-lg font-semibold shadow-md"> <span id="btn-salvar-texto">Cadastrar Cliente</span> </button>
+       </div>
+      </form>
+     </div>
+    </div>
+   </div><!-- Modal Novo Pedido -->
+   <div id="modal-pedido" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="modal-backdrop absolute inset-0" onclick="fecharModalPedido()"></div>
+    <div class="relative min-h-full flex items-center justify-center p-4">
+     <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90%] overflow-y-auto slide-in">
+      <div class="pizza-icon text-white p-6 rounded-t-2xl">
+       <h2 class="text-2xl font-bold">🥟 Novo Pedido</h2>
+      </div>
+      <form id="form-pedido" class="p-6 space-y-4"><!-- Busca de Cliente -->
+       <div class="relative"><label class="block text-gray-700 font-semibold mb-2">Cliente *</label> <input type="text" id="input-busca-cliente" required class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-red-500" placeholder="Digite o nome, telefone ou endereço do cliente..." autocomplete="off"> <input type="hidden" id="cliente-selecionado-id" required>
+        <div id="autocomplete-clientes" class="absolute w-full bg-white border-2 border-gray-200 rounded-lg mt-1 max-h-64 overflow-y-auto shadow-lg hidden z-20"><!-- Sugestões de clientes aparecerão aqui -->
+        </div>
+       </div><!-- Card do Cliente Selecionado -->
+       <div id="cliente-selecionado-card" class="hidden bg-green-50 border-2 border-green-300 rounded-lg p-4">
+        <div class="flex items-start justify-between">
+         <div class="flex-1">
+          <div class="flex items-center space-x-2 mb-2">
+           <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+           </svg>
+           <h4 class="font-bold text-green-800">Cliente Selecionado</h4>
+          </div>
+          <p class="font-bold text-gray-800 text-lg mb-1" id="card-cliente-nome"></p>
+          <div class="space-y-1 text-sm text-gray-700">
+           <p class="flex items-center space-x-2">
+            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg><span id="card-cliente-telefone"></span></p>
+           <p class="flex items-center space-x-2">
+            <svg class="w-4 h-4 text-green-600" fill="currentColor" viewbox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+            </svg><span id="card-cliente-whatsapp"></span></p>
+           <p class="flex items-start space-x-2">
+            <svg class="w-4 h-4 text-gray-600 mt-0.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            </svg><span id="card-cliente-endereco" class="flex-1"></span></p>
+           <p class="flex items-center space-x-2 bg-blue-100 px-2 py-1 rounded">
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            </svg><span class="font-semibold text-blue-800" id="card-cliente-bairro"></span> <span class="text-blue-600">•</span> <span class="font-bold text-blue-600" id="card-cliente-taxa"></span></p>
+          </div>
+          <div id="card-cliente-preferencias" class="mt-2 space-y-1 hidden">
+           <p class="text-xs text-gray-600"><strong>🥟 Salgados:</strong> <span id="card-cliente-pizzas"></span></p>
+           <p class="text-xs text-gray-600"><strong>🍰 Doces:</strong> <span id="card-cliente-esfirras"></span></p>
+          </div>
+         </div><button type="button" onclick="limparClienteSelecionado()" class="text-red-600 hover:text-red-800 p-2 hover:bg-red-100 rounded-lg transition-all" title="Trocar cliente">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg></button>
+        </div>
+       </div><!-- Campo de Busca com Autocomplete -->
+       <div class="relative"><label class="block text-gray-700 font-semibold mb-2">Digite o item do pedido</label> <input type="text" id="input-busca-item" class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-orange-500" placeholder="Digite para buscar salgados, doces, bebidas..." autocomplete="off">
+        <div id="autocomplete-list" class="absolute w-full bg-white border-2 border-gray-200 rounded-lg mt-1 max-h-64 overflow-y-auto shadow-lg hidden z-10"><!-- Sugestões aparecerão aqui -->
+        </div>
+       </div><!-- Itens do Pedido -->
+       <div>
+        <div class="flex items-center justify-between mb-3"><label class="block text-gray-700 font-semibold">Itens do Pedido</label> <span id="total-pedido" class="text-2xl font-bold text-orange-600">R$ 0,00</span>
+        </div>
+        <div id="itens-pedido" class="space-y-2 min-h-[100px] bg-gray-50 rounded-lg p-4">
+         <p class="text-gray-400 text-center py-8">Nenhum item adicionado ainda</p>
+        </div>
+       </div><!-- Taxa de Entrega -->
+       <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4"><label class="block text-gray-700 font-semibold mb-2">🚚 Taxa de Entrega</label>
+        <div class="relative"><input type="text" id="input-bairro" required class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-blue-500" placeholder="Digite o bairro de entrega..." autocomplete="off">
+         <div id="autocomplete-bairros" class="absolute w-full bg-white border-2 border-gray-200 rounded-lg mt-1 max-h-48 overflow-y-auto shadow-lg hidden z-10"><!-- Sugestões de bairros aparecerão aqui -->
+         </div>
+        </div>
+        <div class="mt-3 grid grid-cols-2 gap-3">
+         <div><label class="block text-xs text-gray-600 mb-1">Valor da Taxa</label> <input type="number" id="input-taxa-entrega" step="0.01" min="0" value="0" class="input-field w-full px-3 py-2 border-2 border-gray-200 rounded-lg outline-none focus:border-blue-500 font-bold text-blue-600" placeholder="0.00">
+         </div>
+         <div class="flex items-end"><button type="button" onclick="salvarBairroTaxa()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-all"> 💾 Salvar Bairro </button>
+         </div>
+        </div>
+        <div id="info-taxa" class="mt-3 hidden">
+         <div class="bg-green-100 border border-green-300 rounded-lg p-3">
+          <p class="text-sm text-green-800"><strong>Taxa aplicada:</strong> R$ <span id="taxa-aplicada">0,00</span></p>
+         </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">💡 Digite o bairro e defina a taxa. O sistema vai lembrar para os próximos pedidos!</p>
+       </div>
+       <div><label class="block text-gray-700 font-semibold mb-2">Observações</label> <textarea id="input-observacoes" rows="3" class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-red-500" placeholder="Ex: Sem cebola, bem passada, retirar azeitona..."></textarea>
+       </div>
+       <div class="flex space-x-3 pt-4"><button type="button" onclick="fecharModalPedido()" class="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all"> Cancelar </button> <button type="submit" id="btn-salvar-pedido" class="flex-1 btn-primary pizza-icon text-white px-6 py-3 rounded-lg font-semibold shadow-md"> Criar Pedido </button>
+       </div>
+      </form>
+     </div>
+    </div>
+   </div><!-- Modal Item Personalizado -->
+   <div id="modal-item-personalizado" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="modal-backdrop absolute inset-0" onclick="fecharModalItemPersonalizado()"></div>
+    <div class="relative min-h-full flex items-center justify-center p-4">
+     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full slide-in">
+      <div class="bg-blue-600 text-white p-6 rounded-t-2xl">
+       <h2 class="text-2xl font-bold">➕ Adicionar Item Personalizado</h2>
+      </div>
+      <form id="form-item-personalizado" class="p-6 space-y-4">
+       <div><label class="block text-gray-700 font-semibold mb-2">Nome do Item *</label> <input type="text" id="input-nome-item" required class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-blue-500" placeholder="Ex: Pizza Especial da Casa">
+       </div>
+       <div><label class="block text-gray-700 font-semibold mb-2">Preço (R$) *</label> <input type="number" id="input-preco-item" required step="0.01" min="0.01" class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-blue-500" placeholder="Ex: 45.00">
+       </div>
+       <div><label class="block text-gray-700 font-semibold mb-2">Categoria *</label> <select id="input-categoria-item" required class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-blue-500"> <option value="">Selecione uma categoria</option> <option value="Salgado">Salgado</option> <option value="Doce">Doce</option> <option value="Bebida">Bebida</option> <option value="Outro">Outro</option> </select>
+       </div>
+       <div class="flex space-x-3 pt-4"><button type="button" onclick="fecharModalItemPersonalizado()" class="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all"> Cancelar </button> <button type="submit" class="flex-1 btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold shadow-md"> Adicionar ao Pedido </button>
+       </div>
+      </form>
+     </div>
+    </div>
+   </div><!-- Modal Quantidade -->
+   <div id="modal-quantidade" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="modal-backdrop absolute inset-0" onclick="fecharModalQuantidade()"></div>
+    <div class="relative min-h-full flex items-center justify-center p-4">
+     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full slide-in">
+      <div class="pizza-icon text-white p-6 rounded-t-2xl">
+       <h2 class="text-2xl font-bold">🥟 Adicionar Item</h2>
+      </div>
+      <form id="form-quantidade" class="p-6 space-y-4">
+       <div class="bg-gray-50 rounded-lg p-4">
+        <p class="font-bold text-gray-800 text-lg" id="quantidade-item-nome"></p>
+        <p class="text-sm text-gray-600" id="quantidade-item-categoria"></p>
+        <p class="text-orange-600 font-bold text-xl mt-2" id="quantidade-item-preco"></p>
+       </div><!-- Opção Pizza Meio a Meio -->
+       <div id="opcao-meio-meio" class="hidden">
+        <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4"><label class="flex items-center space-x-3 cursor-pointer"> <input type="checkbox" id="input-meio-meio" class="w-5 h-5 text-red-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-red-500" onchange="toggleMeioMeio()"> <span class="text-gray-700 font-semibold">🍕 Pizza Meio a Meio (2 sabores)</span> </label>
+        </div>
+        <div id="segundo-sabor-container" class="hidden mt-3"><label class="block text-gray-700 font-semibold mb-2">Segundo Sabor *</label> <select id="input-segundo-sabor" class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-red-500"> <option value="">Selecione o segundo sabor</option> </select>
+         <p class="text-xs text-gray-500 mt-2">💡 O preço será do sabor mais caro</p>
+        </div>
+       </div>
+       <div><label class="block text-gray-700 font-semibold mb-2">Quantidade *</label>
+        <div class="flex items-center space-x-4"><button type="button" onclick="alterarQuantidade(-1)" class="bg-orange-100 hover:bg-orange-200 text-orange-600 w-12 h-12 rounded-lg font-bold text-xl transition-all"> - </button> <input type="number" id="input-quantidade" value="1" min="1" required class="input-field flex-1 text-center px-4 py-3 border-2 border-gray-200 rounded-lg outline-none focus:border-orange-500 font-bold text-xl"> <button type="button" onclick="alterarQuantidade(1)" class="bg-orange-100 hover:bg-orange-200 text-orange-600 w-12 h-12 rounded-lg font-bold text-xl transition-all"> + </button>
+        </div>
+       </div>
+       <div class="bg-orange-50 rounded-lg p-4">
+        <div class="flex justify-between items-center"><span class="text-gray-700 font-semibold">Subtotal:</span> <span class="text-2xl font-bold text-orange-600" id="subtotal-quantidade">R$ 0,00</span>
+        </div>
+       </div>
+       <div class="flex space-x-3 pt-4"><button type="button" onclick="fecharModalQuantidade()" class="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all"> Cancelar </button> <button type="submit" class="flex-1 btn-primary pizza-icon text-white px-6 py-3 rounded-lg font-semibold shadow-md"> Adicionar ao Pedido </button>
+       </div>
+      </form>
+     </div>
+    </div>
+   </div><!-- Modal Promoções -->
+   <div id="modal-promocoes" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="modal-backdrop absolute inset-0" onclick="fecharModalPromocoes()"></div>
+    <div class="relative min-h-full flex items-center justify-center p-4">
+     <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full slide-in">
+      <div class="pizza-icon text-white p-6 rounded-t-2xl">
+       <h2 class="text-2xl font-bold">📢 Enviar Promoções</h2>
+      </div>
+      <div class="p-6">
+       <div class="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-4">
+        <div class="flex items-start space-x-3">
+         <svg class="w-6 h-6 text-green-600 mt-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+         </svg>
+         <div>
+          <h3 class="font-bold text-green-800 mb-1">Lista de Contatos Pronta!</h3>
+          <p class="text-green-700 text-sm"><span id="count-promocoes" class="font-bold">0</span> clientes aceitaram receber promoções.</p>
+         </div>
+        </div>
+       </div>
+       <div class="space-y-3 mb-6 max-h-64 overflow-y-auto">
+        <p class="text-sm font-semibold text-gray-700 mb-2">Clique no botão verde para enviar mensagem:</p>
+        <div id="lista-whatsapp" class="space-y-2"><!-- Lista será preenchida aqui -->
+        </div>
+       </div>
+       <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-6">
+        <div class="flex items-start space-x-3">
+         <svg class="w-6 h-6 text-blue-600 mt-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+         </svg>
+         <div>
+          <h4 class="font-bold text-blue-800 mb-1">Como funciona?</h4>
+          <p class="text-blue-700 text-sm">Clique no botão "Enviar" ao lado de cada cliente. O WhatsApp abrirá automaticamente com a conversa pronta para você digitar sua promoção!</p>
+         </div>
+        </div>
+       </div><button onclick="fecharModalPromocoes()" class="w-full pizza-icon text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all"> Fechar </button>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    // Cardápio - pode ser editado depois
+    const cardapioInicial = {
+      pizzas: [
+        { nome: "Coxinha de Frango", preco: 5.00 },
+        { nome: "Bolinha de Queijo", preco: 5.00 },
+        { nome: "Risole de Carne", preco: 5.00 },
+        { nome: "Pastel de Queijo", preco: 5.50 },
+        { nome: "Kibe", preco: 5.50 },
+        { nome: "Empada de Frango", preco: 6.00 },
+        { nome: "Esfirra de Carne", preco: 5.50 },
+        { nome: "Mini Pizza", preco: 6.00 },
+        { nome: "Enroladinho de Salsicha", preco: 5.00 },
+        { nome: "Quiche de Queijo", preco: 6.50 }
+      ],
+      esfirras: [
+        { nome: "Brigadeiro", preco: 3.00 },
+        { nome: "Beijinho", preco: 3.00 },
+        { nome: "Casadinho", preco: 3.00 },
+        { nome: "Romeu e Julieta", preco: 3.50 },
+        { nome: "Olho de Sogra", preco: 3.50 },
+        { nome: "Cajuzinho", preco: 3.00 }
+      ],
+      bebidas: [
+        { nome: "Coca-Cola 2L", preco: 12.00 },
+        { nome: "Guaraná 2L", preco: 10.00 },
+        { nome: "Suco Natural 500ml", preco: 8.00 },
+        { nome: "Água Mineral", preco: 3.00 }
+      ]
+    };
+    
+    // Carregar cardápio personalizado do localStorage
+    function carregarCardapio() {
+      const cardapioSalvo = localStorage.getItem('cardapio_personalizado');
+      if (cardapioSalvo) {
+        return JSON.parse(cardapioSalvo);
+      }
+      return JSON.parse(JSON.stringify(cardapioInicial)); // Clone do inicial
+    }
+    
+    function salvarCardapio() {
+      localStorage.setItem('cardapio_personalizado', JSON.stringify(cardapio));
+    }
+    
+    let cardapio = carregarCardapio();
+    
+    let clientesData = [];
+    let pedidosData = [];
+    let clienteEditando = null;
+    let searchTerm = '';
+    let itensPedidoAtual = [];
+    let currentTab = 'clientes';
+    let bairrosTaxas = {}; // { "Centro": 5.00, "Jardim": 8.00 }
+    
+    const defaultConfig = {
+      nome_pizzaria: "GIBA SALGADOS",
+      slogan: "Qualidade e sabor em cada salgado",
+      botao_adicionar: "Novo Cliente",
+      botao_promocoes: "Enviar Promoções",
+      background_color: "#fff7ed",
+      surface_color: "#ffffff",
+      text_color: "#374151",
+      primary_action_color: "#f97316",
+      secondary_action_color: "#ea580c",
+      font_family: "system-ui",
+      font_size: 16
+    };
+    
+    // Data SDK para Clientes
+    const dataHandlerClientes = {
+      onDataChanged(data) {
+        clientesData = data;
+        renderClientes();
+        atualizarEstatisticas();
+        atualizarSelectClientes();
+      }
+    };
+    
+    // Simulação de pedidos (localStorage já que não temos segundo SDK)
+    function carregarPedidos() {
+      const pedidosSalvos = localStorage.getItem('pedidos_gibasalgados');
+      if (pedidosSalvos) {
+        pedidosData = JSON.parse(pedidosSalvos);
+        renderPedidos();
+        atualizarEstatisticasPedidos();
+      }
+    }
+    
+    // Carregar bairros e taxas
+    function carregarBairrosTaxas() {
+      const bairrosSalvos = localStorage.getItem('bairros_taxas_gibasalgados');
+      if (bairrosSalvos) {
+        bairrosTaxas = JSON.parse(bairrosSalvos);
+      }
+    }
+    
+    function salvarBairrosTaxas() {
+      localStorage.setItem('bairros_taxas_gibasalgados', JSON.stringify(bairrosTaxas));
+    }
+    
+    function salvarPedidos() {
+      localStorage.setItem('pedidos_gibasalgados', JSON.stringify(pedidosData));
+      renderPedidos();
+      atualizarEstatisticasPedidos();
+    }
+    
+    async function inicializarApp() {
+      const initResult = await window.dataSdk.init(dataHandlerClientes);
+      if (!initResult.isOk) {
+        mostrarToast("Erro ao inicializar sistema", "error");
+        return;
+      }
+      carregarPedidos();
+      carregarBairrosTaxas();
+    }
+    
+    // Autocomplete para bairros NO FORMULÁRIO DE CLIENTE
+    const inputBairroCliente = document.getElementById('input-bairro-cliente');
+    const autocompleteBairrosCliente = document.getElementById('autocomplete-bairros-cliente');
+    const inputTaxaCliente = document.getElementById('input-taxa-cliente');
+    
+    inputBairroCliente.addEventListener('input', (e) => {
+      const termo = e.target.value.trim().toLowerCase();
+      
+      if (termo.length < 2) {
+        autocompleteBairrosCliente.classList.add('hidden');
+        return;
+      }
+      
+      const bairrosDisponiveis = Object.keys(bairrosTaxas).filter(bairro => 
+        bairro.toLowerCase().includes(termo)
+      );
+      
+      if (bairrosDisponiveis.length === 0) {
+        autocompleteBairrosCliente.innerHTML = `
+          <div class="p-4 text-gray-500 text-center">
+            <p class="text-sm">Bairro novo: <strong>${escapeHtml(e.target.value)}</strong></p>
+            <p class="text-xs mt-1">Digite a taxa e clique em "Salvar Bairro"</p>
+          </div>
+        `;
+        autocompleteBairrosCliente.classList.remove('hidden');
+        return;
+      }
+      
+      autocompleteBairrosCliente.innerHTML = bairrosDisponiveis.map(bairro => `
+        <div class="autocomplete-item p-3 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0" onclick='selecionarBairroCliente("${escapeHtml(bairro)}")'>
+          <div class="flex justify-between items-center">
+            <span class="font-semibold text-gray-800">${escapeHtml(bairro)}</span>
+            <span class="text-blue-600 font-bold">R$ ${bairrosTaxas[bairro].toFixed(2)}</span>
+          </div>
+        </div>
+      `).join('');
+      
+      autocompleteBairrosCliente.classList.remove('hidden');
+    });
+    
+    function selecionarBairroCliente(bairro) {
+      inputBairroCliente.value = bairro;
+      inputTaxaCliente.value = bairrosTaxas[bairro].toFixed(2);
+      autocompleteBairrosCliente.classList.add('hidden');
+      mostrarToast(`Bairro selecionado: ${bairro} - R$ ${bairrosTaxas[bairro].toFixed(2)}`, 'success');
+    }
+    
+    function salvarBairroTaxaCliente() {
+      const bairro = inputBairroCliente.value.trim();
+      const taxa = parseFloat(inputTaxaCliente.value);
+      
+      if (!bairro) {
+        mostrarToast('Digite o nome do bairro!', 'error');
+        return;
+      }
+      
+      if (isNaN(taxa) || taxa < 0) {
+        mostrarToast('Digite um valor válido para a taxa!', 'error');
+        return;
+      }
+      
+      bairrosTaxas[bairro] = taxa;
+      salvarBairrosTaxas();
+      
+      mostrarToast(`Bairro "${bairro}" salvo com taxa de R$ ${taxa.toFixed(2)}!`, 'success');
+    }
+    
+    document.addEventListener('click', (e) => {
+      if (!inputBairroCliente.contains(e.target) && !autocompleteBairrosCliente.contains(e.target)) {
+        autocompleteBairrosCliente.classList.add('hidden');
+      }
+    });
+    
+    // Autocomplete para bairros NO PEDIDO
+    const inputBairro = document.getElementById('input-bairro');
+    const autocompleteBairros = document.getElementById('autocomplete-bairros');
+    const inputTaxaEntrega = document.getElementById('input-taxa-entrega');
+    
+    inputBairro.addEventListener('input', (e) => {
+      const termo = e.target.value.trim().toLowerCase();
+      
+      if (termo.length < 2) {
+        autocompleteBairros.classList.add('hidden');
+        return;
+      }
+      
+      const bairrosDisponiveis = Object.keys(bairrosTaxas).filter(bairro => 
+        bairro.toLowerCase().includes(termo)
+      );
+      
+      if (bairrosDisponiveis.length === 0) {
+        autocompleteBairros.innerHTML = `
+          <div class="p-4 text-gray-500 text-center">
+            <p class="text-sm">Bairro novo: <strong>${escapeHtml(e.target.value)}</strong></p>
+            <p class="text-xs mt-1">Digite a taxa e clique em "Salvar Bairro"</p>
+          </div>
+        `;
+        autocompleteBairros.classList.remove('hidden');
+        return;
+      }
+      
+      autocompleteBairros.innerHTML = bairrosDisponiveis.map(bairro => `
+        <div class="autocomplete-item p-3 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0" onclick='selecionarBairro("${escapeHtml(bairro)}")'>
+          <div class="flex justify-between items-center">
+            <span class="font-semibold text-gray-800">${escapeHtml(bairro)}</span>
+            <span class="text-blue-600 font-bold">R$ ${bairrosTaxas[bairro].toFixed(2)}</span>
+          </div>
+        </div>
+      `).join('');
+      
+      autocompleteBairros.classList.remove('hidden');
+    });
+    
+    function selecionarBairro(bairro) {
+      inputBairro.value = bairro;
+      inputTaxaEntrega.value = bairrosTaxas[bairro].toFixed(2);
+      autocompleteBairros.classList.add('hidden');
+      
+      // Mostrar info da taxa
+      document.getElementById('taxa-aplicada').textContent = bairrosTaxas[bairro].toFixed(2);
+      document.getElementById('info-taxa').classList.remove('hidden');
+      
+      // Atualizar total
+      renderItensPedido();
+      
+      mostrarToast(`Taxa de ${bairro}: R$ ${bairrosTaxas[bairro].toFixed(2)}`, 'success');
+    }
+    
+    function salvarBairroTaxa() {
+      const bairro = inputBairro.value.trim();
+      const taxa = parseFloat(inputTaxaEntrega.value);
+      
+      if (!bairro) {
+        mostrarToast('Digite o nome do bairro!', 'error');
+        return;
+      }
+      
+      if (isNaN(taxa) || taxa < 0) {
+        mostrarToast('Digite um valor válido para a taxa!', 'error');
+        return;
+      }
+      
+      bairrosTaxas[bairro] = taxa;
+      salvarBairrosTaxas();
+      
+      // Mostrar info da taxa
+      document.getElementById('taxa-aplicada').textContent = taxa.toFixed(2);
+      document.getElementById('info-taxa').classList.remove('hidden');
+      
+      // Atualizar total
+      renderItensPedido();
+      
+      mostrarToast(`Bairro "${bairro}" salvo com taxa de R$ ${taxa.toFixed(2)}!`, 'success');
+    }
+    
+    // Atualizar total quando taxa mudar
+    inputTaxaEntrega.addEventListener('input', () => {
+      renderItensPedido();
+      
+      const taxa = parseFloat(inputTaxaEntrega.value) || 0;
+      if (taxa > 0) {
+        document.getElementById('taxa-aplicada').textContent = taxa.toFixed(2);
+        document.getElementById('info-taxa').classList.remove('hidden');
+      } else {
+        document.getElementById('info-taxa').classList.add('hidden');
+      }
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (!inputBairro.contains(e.target) && !autocompleteBairros.contains(e.target)) {
+        autocompleteBairros.classList.add('hidden');
+      }
+    });
+    
+    // Tabs
+    document.getElementById('tab-clientes').addEventListener('click', () => {
+      currentTab = 'clientes';
+      document.getElementById('tab-clientes').classList.add('tab-active');
+      document.getElementById('tab-pedidos').classList.remove('tab-active');
+      document.getElementById('content-clientes').classList.remove('hidden');
+      document.getElementById('content-pedidos').classList.add('hidden');
+    });
+    
+    document.getElementById('tab-pedidos').addEventListener('click', () => {
+      currentTab = 'pedidos';
+      document.getElementById('tab-pedidos').classList.add('tab-active');
+      document.getElementById('tab-clientes').classList.remove('tab-active');
+      document.getElementById('content-pedidos').classList.remove('hidden');
+      document.getElementById('content-clientes').classList.add('hidden');
+    });
+    
+    // Função para abrir WhatsApp
+    function abrirWhatsapp(numero, nome) {
+      // Remove caracteres não numéricos
+      const numeroLimpo = numero.replace(/\D/g, '');
+      // Abre WhatsApp Web em nova aba
+      window.open(`https://wa.me/55${numeroLimpo}`, '_blank', 'noopener,noreferrer');
+      mostrarToast(`Abrindo WhatsApp de ${nome}...`, 'success');
+    }
+    
+    function renderClientes() {
+      const container = document.getElementById('clientes-container');
+      const emptyState = document.getElementById('empty-state');
+      
+      const clientesFiltrados = clientesData.filter(cliente => {
+        if (!searchTerm) return true;
+        const termo = searchTerm.toLowerCase();
+        return (
+          cliente.nome.toLowerCase().includes(termo) ||
+          cliente.telefone.includes(termo) ||
+          cliente.endereco.toLowerCase().includes(termo)
+        );
+      });
+      
+      if (clientesFiltrados.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      
+      emptyState.classList.add('hidden');
+      
+      container.innerHTML = clientesFiltrados.map(cliente => `
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover slide-in">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-gray-800 mb-1">${escapeHtml(cliente.nome)}</h3>
+              ${cliente.receberPromocoes ? '<span class="inline-block bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded">📢 Recebe Promoções</span>' : ''}
+            </div>
+            <div class="flex space-x-2">
+              <button 
+                onclick="editarCliente('${cliente.__backendId}')"
+                class="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-lg transition-all"
+                title="Editar"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </button>
+              <button 
+                onclick="confirmarExclusao('${cliente.__backendId}', '${escapeHtml(cliente.nome)}')"
+                class="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-all"
+                title="Excluir"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <div class="space-y-3">
+            <div class="flex items-center space-x-2 text-gray-700">
+              <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+              </svg>
+              <span>${escapeHtml(cliente.telefone)}</span>
+            </div>
+            
+            <div class="flex items-center justify-between bg-green-50 p-3 rounded-lg">
+              <div class="flex items-center space-x-2 text-gray-700">
+                <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+                <span class="font-medium">${escapeHtml(cliente.whatsapp)}</span>
+              </div>
+              <button 
+                onclick="abrirWhatsapp('${escapeHtml(cliente.whatsapp)}', '${escapeHtml(cliente.nome)}')"
+                class="whatsapp-btn bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center space-x-1 shadow-md"
+                title="Enviar mensagem"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+                <span>Enviar</span>
+              </button>
+            </div>
+            
+            <div class="flex items-start space-x-2 text-gray-700">
+              <svg class="w-5 h-5 text-orange-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span class="flex-1">${escapeHtml(cliente.endereco)}</span>
+            </div>
+            
+            ${cliente.bairro ? `
+              <div class="bg-blue-50 rounded-lg p-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    </svg>
+                    <span class="text-sm font-semibold text-blue-800">Bairro: ${escapeHtml(cliente.bairro)}</span>
+                  </div>
+                  <span class="text-sm font-bold text-blue-600">Taxa: R$ ${cliente.taxaEntrega.toFixed(2)}</span>
+                </div>
+              </div>
+            ` : ''}
+            
+            ${cliente.pizzasFavoritas ? `
+              <div class="bg-orange-50 rounded-lg p-3 mt-3">
+                <p class="text-sm font-semibold text-gray-700 mb-1">🥟 Salgados Favoritos:</p>
+                <p class="text-sm text-gray-600">${escapeHtml(cliente.pizzasFavoritas)}</p>
+              </div>
+            ` : ''}
+            
+            ${cliente.esfirrasFavoritas ? `
+              <div class="bg-amber-50 rounded-lg p-3 mt-2">
+                <p class="text-sm font-semibold text-gray-700 mb-1">🍰 Doces Favoritos:</p>
+                <p class="text-sm text-gray-600">${escapeHtml(cliente.esfirrasFavoritas)}</p>
+              </div>
+            ` : ''}
+            
+            <div class="pt-3 border-t border-gray-200 mt-3">
+              <p class="text-xs text-gray-500">
+                Cadastro: ${formatarData(cliente.dataCadastro)}
+              </p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function renderPedidos() {
+      const container = document.getElementById('pedidos-container');
+      const emptyState = document.getElementById('empty-pedidos');
+      
+      if (pedidosData.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      
+      emptyState.classList.add('hidden');
+      
+      // Ordenar por data mais recente
+      const pedidosOrdenados = [...pedidosData].sort((a, b) => 
+        new Date(b.dataPedido) - new Date(a.dataPedido)
+      );
+      
+      container.innerHTML = pedidosOrdenados.map(pedido => {
+        const cliente = clientesData.find(c => c.__backendId === pedido.clienteId);
+        const nomeCliente = cliente ? cliente.nome : 'Cliente não encontrado';
+        const enderecoCliente = cliente ? cliente.endereco : '';
+        
+        let statusClass = '';
+        let statusIcon = '';
+        let statusText = '';
+        
+        if (pedido.status === 'pendente') {
+          statusClass = 'bg-orange-100 text-orange-700 border-orange-300';
+          statusIcon = '⏳';
+          statusText = 'Pendente';
+        } else if (pedido.status === 'pronto') {
+          statusClass = 'bg-blue-100 text-blue-700 border-blue-300';
+          statusIcon = '✅';
+          statusText = 'Pronto';
+        } else if (pedido.status === 'entrega') {
+          statusClass = 'bg-purple-100 text-purple-700 border-purple-300';
+          statusIcon = '🚚';
+          statusText = 'Saiu para Entrega';
+        }
+        
+        return `
+          <div class="bg-white rounded-xl shadow-md p-6 card-hover slide-in">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex-1">
+                <div class="flex items-center space-x-3 mb-2">
+                  <h3 class="text-xl font-bold text-gray-800">${escapeHtml(nomeCliente)}</h3>
+                  <span class="status-badge ${statusClass} px-3 py-1 rounded-full text-sm font-semibold border-2">
+                    ${statusIcon} ${statusText}
+                  </span>
+                </div>
+                <p class="text-sm text-gray-600 flex items-center space-x-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  </svg>
+                  <span>${escapeHtml(enderecoCliente)}</span>
+                </p>
+              </div>
+              <button 
+                onclick="excluirPedido('${pedido.id}')"
+                class="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-all"
+                title="Excluir pedido"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+            
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+              <p class="text-sm font-semibold text-gray-700 mb-2">Itens do Pedido:</p>
+              <div class="space-y-2">
+                ${(() => {
+                  // Agrupar itens
+                  const itensAgrupados = {};
+                  pedido.itens.forEach(item => {
+                    const chave = `${item.nome}|${item.preco}`;
+                    if (!itensAgrupados[chave]) {
+                      itensAgrupados[chave] = {
+                        nome: item.nome,
+                        preco: item.preco,
+                        quantidade: 0
+                      };
+                    }
+                    itensAgrupados[chave].quantidade++;
+                  });
+                  
+                  return Object.values(itensAgrupados).map(itemAgrupado => {
+                    const subtotal = itemAgrupado.preco * itemAgrupado.quantidade;
+                    const unidade = itemAgrupado.quantidade === 1 ? 'unid' : 'unid';
+                    
+                    return `
+                      <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                          <span class="text-gray-700">${escapeHtml(itemAgrupado.nome)}</span>
+                          <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-1 rounded">${itemAgrupado.quantidade} ${unidade}</span>
+                        </div>
+                        <div class="text-right">
+                          ${itemAgrupado.quantidade > 1 ? `<p class="text-xs text-gray-500">R$ ${itemAgrupado.preco.toFixed(2)} cada</p>` : ''}
+                          <span class="font-semibold text-gray-800">R$ ${subtotal.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    `;
+                  }).join('');
+                })()}
+              </div>
+              <div class="border-t border-gray-300 mt-3 pt-3 space-y-2">
+                ${pedido.taxaEntrega > 0 ? `
+                  <div class="flex justify-between items-center text-sm">
+                    <span class="text-gray-600">Subtotal:</span>
+                    <span class="text-gray-800">R$ ${(pedido.total - pedido.taxaEntrega).toFixed(2)}</span>
+                  </div>
+                  <div class="flex justify-between items-center text-sm">
+                    <span class="text-gray-600">Taxa de Entrega (${escapeHtml(pedido.bairro)}):</span>
+                    <span class="text-gray-800">R$ ${pedido.taxaEntrega.toFixed(2)}</span>
+                  </div>
+                  <div class="border-t border-gray-300 pt-2"></div>
+                ` : ''}
+                <div class="flex justify-between items-center">
+                  <span class="font-bold text-gray-800">Total:</span>
+                  <span class="text-2xl font-bold text-orange-600">R$ ${pedido.total.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+            
+            ${pedido.observacoes ? `
+              <div class="bg-yellow-50 rounded-lg p-3 mb-4">
+                <p class="text-sm font-semibold text-gray-700 mb-1">📝 Observações:</p>
+                <p class="text-sm text-gray-600">${escapeHtml(pedido.observacoes)}</p>
+              </div>
+            ` : ''}
+            
+            <div class="flex space-x-2">
+              ${pedido.status === 'pendente' ? `
+                <button 
+                  onclick="atualizarStatusPedido('${pedido.id}', 'pronto')"
+                  class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-all"
+                >
+                  Marcar como Pronto
+                </button>
+              ` : ''}
+              ${pedido.status === 'pronto' ? `
+                <button 
+                  onclick="atualizarStatusPedido('${pedido.id}', 'entrega')"
+                  class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold transition-all"
+                >
+                  Saiu para Entrega
+                </button>
+              ` : ''}
+              ${pedido.status === 'entrega' ? `
+                <div class="flex-1 bg-green-100 text-green-700 px-4 py-2 rounded-lg font-semibold text-center border-2 border-green-300">
+                  🎉 Pedido em Rota de Entrega
+                </div>
+              ` : ''}
+            </div>
+            
+            <div class="pt-3 border-t border-gray-200 mt-3">
+              <p class="text-xs text-gray-500">
+                Pedido realizado em: ${formatarDataHora(pedido.dataPedido)}
+              </p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function atualizarEstatisticas() {
+      const hoje = new Date().toISOString().split('T')[0];
+      const cadastrosHoje = clientesData.filter(c => c.dataCadastro.startsWith(hoje)).length;
+      const totalPromocoes = clientesData.filter(c => c.receberPromocoes).length;
+      
+      document.getElementById('total-clientes').textContent = clientesData.length;
+      document.getElementById('total-promocoes').textContent = totalPromocoes;
+      document.getElementById('cadastros-hoje').textContent = cadastrosHoje;
+    }
+    
+    function atualizarEstatisticasPedidos() {
+      const pendentes = pedidosData.filter(p => p.status === 'pendente').length;
+      const prontos = pedidosData.filter(p => p.status === 'pronto').length;
+      const entrega = pedidosData.filter(p => p.status === 'entrega').length;
+      
+      document.getElementById('total-pendentes').textContent = pendentes;
+      document.getElementById('total-prontos').textContent = prontos;
+      document.getElementById('total-entrega').textContent = entrega;
+      document.getElementById('total-pedidos').textContent = pedidosData.length;
+    }
+    
+    // Autocomplete para busca de clientes no pedido
+    const inputBuscaCliente = document.getElementById('input-busca-cliente');
+    const autocompleteClientes = document.getElementById('autocomplete-clientes');
+    let clienteSelecionado = null;
+    
+    inputBuscaCliente.addEventListener('input', (e) => {
+      const termo = e.target.value.toLowerCase().trim();
+      
+      // Limpar seleção se usuário começar a digitar novamente
+      if (clienteSelecionado) {
+        clienteSelecionado = null;
+        document.getElementById('cliente-selecionado-id').value = '';
+        document.getElementById('cliente-selecionado-card').classList.add('hidden');
+      }
+      
+      if (termo.length < 2) {
+        autocompleteClientes.classList.add('hidden');
+        return;
+      }
+      
+      const resultados = clientesData.filter(cliente => 
+        cliente.nome.toLowerCase().includes(termo) ||
+        cliente.telefone.includes(termo) ||
+        cliente.whatsapp.includes(termo) ||
+        cliente.endereco.toLowerCase().includes(termo)
+      );
+      
+      if (resultados.length === 0) {
+        autocompleteClientes.innerHTML = '<div class="p-4 text-gray-500 text-center">Nenhum cliente encontrado</div>';
+        autocompleteClientes.classList.remove('hidden');
+        return;
+      }
+      
+      autocompleteClientes.innerHTML = resultados.map(cliente => `
+        <div class="autocomplete-item p-3 cursor-pointer hover:bg-red-50 border-b border-gray-100 last:border-b-0" onclick='selecionarClientePedido(${JSON.stringify(cliente)})'>
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <p class="font-semibold text-gray-800">${escapeHtml(cliente.nome)}</p>
+              <div class="text-xs text-gray-600 space-y-0.5 mt-1">
+                <p class="flex items-center space-x-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  </svg>
+                  <span>${escapeHtml(cliente.telefone)}</span>
+                </p>
+                <p class="flex items-center space-x-1">
+                  <svg class="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                  </svg>
+                  <span>${escapeHtml(cliente.whatsapp)}</span>
+                </p>
+                <p class="flex items-start space-x-1">
+                  <svg class="w-3 h-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  </svg>
+                  <span>${escapeHtml(cliente.endereco)}</span>
+                </p>
+                ${cliente.bairro ? `
+                  <p class="flex items-center space-x-1 text-blue-600 font-semibold">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    </svg>
+                    <span>${escapeHtml(cliente.bairro)} - R$ ${cliente.taxaEntrega.toFixed(2)}</span>
+                  </p>
+                ` : ''}
+              </div>
+            </div>
+            <svg class="w-5 h-5 text-green-600 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+      `).join('');
+      
+      autocompleteClientes.classList.remove('hidden');
+    });
+    
+    function selecionarClientePedido(clienteStr) {
+      // Se vier como string JSON, fazer parse
+      const cliente = typeof clienteStr === 'string' ? JSON.parse(clienteStr) : clienteStr;
+      
+      clienteSelecionado = cliente;
+      
+      // Preencher campo hidden
+      document.getElementById('cliente-selecionado-id').value = cliente.__backendId;
+      
+      // Remover required do input de busca já que cliente foi selecionado
+      inputBuscaCliente.removeAttribute('required');
+      
+      // Limpar e esconder input de busca
+      inputBuscaCliente.value = '';
+      autocompleteClientes.classList.add('hidden');
+      
+      // Mostrar card do cliente
+      document.getElementById('card-cliente-nome').textContent = cliente.nome;
+      document.getElementById('card-cliente-telefone').textContent = cliente.telefone;
+      document.getElementById('card-cliente-whatsapp').textContent = cliente.whatsapp;
+      document.getElementById('card-cliente-endereco').textContent = cliente.endereco;
+      
+      // Mostrar bairro e taxa se existirem
+      if (cliente.bairro && cliente.taxaEntrega >= 0) {
+        document.getElementById('card-cliente-bairro').textContent = cliente.bairro;
+        document.getElementById('card-cliente-taxa').textContent = `R$ ${cliente.taxaEntrega.toFixed(2)}`;
+        
+        // Preencher automaticamente o bairro e taxa no pedido
+        document.getElementById('input-bairro').value = cliente.bairro;
+        document.getElementById('input-taxa-entrega').value = cliente.taxaEntrega.toFixed(2);
+        
+        // Mostrar info da taxa
+        document.getElementById('taxa-aplicada').textContent = cliente.taxaEntrega.toFixed(2);
+        document.getElementById('info-taxa').classList.remove('hidden');
+      }
+      
+      // Mostrar preferências se existirem
+      const prefDiv = document.getElementById('card-cliente-preferencias');
+      if (cliente.pizzasFavoritas || cliente.esfirrasFavoritas) {
+        document.getElementById('card-cliente-pizzas').textContent = cliente.pizzasFavoritas || 'Não informado';
+        document.getElementById('card-cliente-esfirras').textContent = cliente.esfirrasFavoritas || 'Não informado';
+        prefDiv.classList.remove('hidden');
+      } else {
+        prefDiv.classList.add('hidden');
+      }
+      
+      document.getElementById('cliente-selecionado-card').classList.remove('hidden');
+      
+      // Focar no próximo campo (busca de item)
+      document.getElementById('input-busca-item').focus();
+    }
+    
+    function limparClienteSelecionado() {
+      clienteSelecionado = null;
+      document.getElementById('cliente-selecionado-id').value = '';
+      document.getElementById('cliente-selecionado-card').classList.add('hidden');
+      inputBuscaCliente.value = '';
+      inputBuscaCliente.setAttribute('required', 'required');
+      
+      // Limpar também o bairro e taxa
+      document.getElementById('input-bairro').value = '';
+      document.getElementById('input-taxa-entrega').value = '0';
+      document.getElementById('info-taxa').classList.add('hidden');
+      
+      inputBuscaCliente.focus();
+    }
+    
+    document.addEventListener('click', (e) => {
+      if (!inputBuscaCliente.contains(e.target) && !autocompleteClientes.contains(e.target)) {
+        autocompleteClientes.classList.add('hidden');
+      }
+    });
+    
+    // Autocomplete para itens do pedido
+    const inputBusca = document.getElementById('input-busca-item');
+    const autocompleteList = document.getElementById('autocomplete-list');
+    
+    inputBusca.addEventListener('input', (e) => {
+      const termo = e.target.value.toLowerCase().trim();
+      
+      if (termo.length < 2) {
+        autocompleteList.classList.add('hidden');
+        return;
+      }
+      
+      const todosItens = [
+        ...cardapio.pizzas.map(p => ({ ...p, categoria: 'Salgado' })),
+        ...cardapio.esfirras.map(e => ({ ...e, categoria: 'Doce' })),
+        ...cardapio.bebidas.map(b => ({ ...b, categoria: 'Bebida' }))
+      ];
+      
+      const resultados = todosItens.filter(item => 
+        item.nome.toLowerCase().includes(termo)
+      );
+      
+      let html = '';
+      
+      if (resultados.length > 0) {
+        html = resultados.map(item => `
+          <div class="autocomplete-item p-3 cursor-pointer hover:bg-orange-50 border-b border-gray-100" onclick='selecionarItemParaAdicionar(${JSON.stringify(item)})'>
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="font-semibold text-gray-800">${escapeHtml(item.nome)}</p>
+                <p class="text-xs text-gray-500">${item.categoria}</p>
+              </div>
+              <span class="text-orange-600 font-bold">R$ ${item.preco.toFixed(2)}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      // Adicionar opção de item personalizado
+      html += `
+        <div class="bg-blue-50 border-t-2 border-blue-200 p-3 cursor-pointer hover:bg-blue-100 transition-all" onclick="abrirModalItemPersonalizado('${escapeHtml(e.target.value.trim())}')">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              <div>
+                <p class="font-semibold text-blue-800">Adicionar item personalizado</p>
+                <p class="text-xs text-blue-600">${resultados.length === 0 ? 'Nenhum item encontrado no cardápio' : 'Criar novo item com preço personalizado'}</p>
+              </div>
+            </div>
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+      `;
+      
+      autocompleteList.innerHTML = html;
+      autocompleteList.classList.remove('hidden');
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (!inputBusca.contains(e.target) && !autocompleteList.contains(e.target)) {
+        autocompleteList.classList.add('hidden');
+      }
+    });
+    
+    let itemTemporario = null;
+    
+    function selecionarItemParaAdicionar(itemStr) {
+      const item = typeof itemStr === 'string' ? JSON.parse(itemStr) : itemStr;
+      itemTemporario = item;
+      
+      document.getElementById('quantidade-item-nome').textContent = item.nome;
+      document.getElementById('quantidade-item-categoria').textContent = item.categoria;
+      document.getElementById('quantidade-item-preco').textContent = `R$ ${item.preco.toFixed(2)}`;
+      document.getElementById('quantidade-item-preco').className = 'text-orange-600 font-bold text-xl mt-2';
+      document.getElementById('input-quantidade').value = '1';
+      document.getElementById('input-meio-meio').checked = false;
+      
+      // Esconder opção meio a meio (não se aplica a salgados)
+      document.getElementById('opcao-meio-meio').classList.add('hidden');
+      
+      atualizarSubtotal();
+      inputBusca.value = '';
+      autocompleteList.classList.add('hidden');
+      document.getElementById('modal-quantidade').classList.remove('hidden');
+    }
+    
+    function toggleMeioMeio() {
+      const checkbox = document.getElementById('input-meio-meio');
+      const container = document.getElementById('segundo-sabor-container');
+      const selectSegundoSabor = document.getElementById('input-segundo-sabor');
+      
+      if (checkbox.checked) {
+        container.classList.remove('hidden');
+        selectSegundoSabor.setAttribute('required', 'required');
+      } else {
+        container.classList.add('hidden');
+        selectSegundoSabor.removeAttribute('required');
+        selectSegundoSabor.value = '';
+      }
+      
+      atualizarSubtotal();
+    }
+    
+    function alterarQuantidade(delta) {
+      const input = document.getElementById('input-quantidade');
+      const novaQuantidade = Math.max(1, parseInt(input.value) + delta);
+      input.value = novaQuantidade;
+      atualizarSubtotal();
+    }
+    
+    function atualizarSubtotal() {
+      if (!itemTemporario) return;
+      
+      const quantidade = parseInt(document.getElementById('input-quantidade').value) || 1;
+      const meioMeio = document.getElementById('input-meio-meio').checked;
+      let preco = itemTemporario.preco;
+      
+      if (meioMeio) {
+        const selectSegundoSabor = document.getElementById('input-segundo-sabor');
+        const opcaoSelecionada = selectSegundoSabor.options[selectSegundoSabor.selectedIndex];
+        
+        if (opcaoSelecionada && opcaoSelecionada.dataset.preco) {
+          const precoSegundoSabor = parseFloat(opcaoSelecionada.dataset.preco);
+          preco = Math.max(preco, precoSegundoSabor);
+        }
+      }
+      
+      const subtotal = preco * quantidade;
+      document.getElementById('subtotal-quantidade').textContent = `R$ ${subtotal.toFixed(2)}`;
+    }
+    
+    function fecharModalQuantidade() {
+      document.getElementById('modal-quantidade').classList.add('hidden');
+      document.getElementById('form-quantidade').reset();
+      itemTemporario = null;
+    }
+    
+    function salvarItemComQuantidade(event) {
+      event.preventDefault();
+      
+      const quantidade = parseInt(document.getElementById('input-quantidade').value);
+      const meioMeio = document.getElementById('input-meio-meio').checked;
+      let nome = itemTemporario.nome;
+      let preco = itemTemporario.preco;
+      
+      if (meioMeio) {
+        const selectSegundoSabor = document.getElementById('input-segundo-sabor');
+        const segundoSabor = selectSegundoSabor.value;
+        const opcaoSelecionada = selectSegundoSabor.options[selectSegundoSabor.selectedIndex];
+        
+        if (!segundoSabor) {
+          mostrarToast('Selecione o segundo sabor!', 'error');
+          return;
+        }
+        
+        const precoSegundoSabor = parseFloat(opcaoSelecionada.dataset.preco);
+        preco = Math.max(preco, precoSegundoSabor);
+        nome = `${itemTemporario.nome} / ${segundoSabor}`;
+      }
+      
+      for (let i = 0; i < quantidade; i++) {
+        itensPedidoAtual.push({ 
+          nome, 
+          preco, 
+          categoria: itemTemporario.categoria 
+        });
+      }
+      
+      renderItensPedido();
+      fecharModalQuantidade();
+      mostrarToast(`${quantidade}x ${nome} adicionado!`, 'success');
+    }
+    
+    function adicionarItem(nome, preco, categoria) {
+      itensPedidoAtual.push({ nome, preco, categoria });
+      inputBusca.value = '';
+      autocompleteList.classList.add('hidden');
+      renderItensPedido();
+    }
+    
+    function abrirModalItemPersonalizado(nomeInicial) {
+      document.getElementById('input-nome-item').value = nomeInicial || '';
+      document.getElementById('input-preco-item').value = '';
+      document.getElementById('input-categoria-item').value = '';
+      document.getElementById('modal-item-personalizado').classList.remove('hidden');
+      
+      // Focar no campo de preço se já tiver nome
+      if (nomeInicial) {
+        setTimeout(() => {
+          document.getElementById('input-preco-item').focus();
+        }, 100);
+      }
+    }
+    
+    function fecharModalItemPersonalizado() {
+      document.getElementById('modal-item-personalizado').classList.add('hidden');
+      document.getElementById('form-item-personalizado').reset();
+    }
+    
+    function salvarItemPersonalizado(event) {
+      event.preventDefault();
+      
+      const nome = document.getElementById('input-nome-item').value.trim();
+      const preco = parseFloat(document.getElementById('input-preco-item').value);
+      const categoria = document.getElementById('input-categoria-item').value;
+      
+      if (nome && preco > 0 && categoria) {
+        const novoItem = { nome, preco, categoria };
+        
+        // Adicionar ao cardápio permanentemente
+        if (categoria === 'Salgado') {
+          cardapio.pizzas.push({ nome, preco });
+        } else if (categoria === 'Doce') {
+          cardapio.esfirras.push({ nome, preco });
+        } else if (categoria === 'Bebida') {
+          cardapio.bebidas.push({ nome, preco });
+        } else {
+          // Para categoria "Outro", adiciona às bebidas
+          cardapio.bebidas.push({ nome, preco });
+        }
+        
+        salvarCardapio();
+        
+        // Fechar modal e abrir o modal de quantidade
+        fecharModalItemPersonalizado();
+        
+        // Pequeno delay para garantir que o modal anterior fechou
+        setTimeout(() => {
+          selecionarItemParaAdicionar(novoItem);
+        }, 100);
+        
+        mostrarToast('Novo item salvo no cardápio!', 'success');
+      }
+    }
+    
+    function removerItem(index) {
+      itensPedidoAtual.splice(index, 1);
+      renderItensPedido();
+    }
+    
+    function renderItensPedido() {
+      const container = document.getElementById('itens-pedido');
+      const totalPedido = document.getElementById('total-pedido');
+      
+      if (itensPedidoAtual.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum item adicionado ainda</p>';
+        totalPedido.textContent = 'R$ 0,00';
+        return;
+      }
+      
+      const subtotalItens = itensPedidoAtual.reduce((sum, item) => sum + item.preco, 0);
+      const taxaEntrega = parseFloat(document.getElementById('input-taxa-entrega').value) || 0;
+      const total = subtotalItens + taxaEntrega;
+      totalPedido.textContent = `R$ ${total.toFixed(2)}`;
+      
+      // Agrupar itens iguais
+      const itensAgrupados = {};
+      itensPedidoAtual.forEach((item, index) => {
+        const chave = `${item.nome}|${item.preco}|${item.categoria}`;
+        if (!itensAgrupados[chave]) {
+          itensAgrupados[chave] = {
+            nome: item.nome,
+            preco: item.preco,
+            categoria: item.categoria,
+            quantidade: 0,
+            indices: []
+          };
+        }
+        itensAgrupados[chave].quantidade++;
+        itensAgrupados[chave].indices.push(index);
+      });
+      
+      container.innerHTML = Object.values(itensAgrupados).map(itemAgrupado => {
+        const subtotal = itemAgrupado.preco * itemAgrupado.quantidade;
+        const unidade = itemAgrupado.quantidade === 1 ? 'unid' : 'unid';
+        
+        return `
+          <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+            <div class="flex-1">
+              <div class="flex items-center space-x-2">
+                <p class="font-semibold text-gray-800">${escapeHtml(itemAgrupado.nome)}</p>
+                <span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded">${itemAgrupado.quantidade} ${unidade}</span>
+              </div>
+              <p class="text-xs text-gray-500">${itemAgrupado.categoria}</p>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="text-right">
+                ${itemAgrupado.quantidade > 1 ? `<p class="text-xs text-gray-500">R$ ${itemAgrupado.preco.toFixed(2)} cada</p>` : ''}
+                <span class="font-bold text-orange-600">R$ ${subtotal.toFixed(2)}</span>
+              </div>
+              <button 
+                onclick="removerItem(${itemAgrupado.indices[0]})"
+                class="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded transition-all"
+                title="Remover 1 unidade"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    // Modal Cliente
+    function abrirModal() {
+      clienteEditando = null;
+      document.getElementById('modal-titulo').textContent = 'Novo Cliente';
+      document.getElementById('btn-salvar-texto').textContent = 'Cadastrar Cliente';
+      document.getElementById('form-cliente').reset();
+      document.getElementById('input-promocoes').checked = true;
+      document.getElementById('input-taxa-cliente').value = '0';
+      document.getElementById('modal-form').classList.remove('hidden');
+    }
+    
+    function fecharModal() {
+      document.getElementById('modal-form').classList.add('hidden');
+      clienteEditando = null;
+    }
+    
+    function editarCliente(backendId) {
+      const cliente = clientesData.find(c => c.__backendId === backendId);
+      if (!cliente) return;
+      
+      clienteEditando = cliente;
+      document.getElementById('modal-titulo').textContent = 'Editar Cliente';
+      document.getElementById('btn-salvar-texto').textContent = 'Salvar Alterações';
+      
+      document.getElementById('input-nome').value = cliente.nome;
+      document.getElementById('input-telefone').value = cliente.telefone;
+      document.getElementById('input-whatsapp').value = cliente.whatsapp;
+      document.getElementById('input-endereco').value = cliente.endereco;
+      document.getElementById('input-bairro-cliente').value = cliente.bairro || '';
+      document.getElementById('input-taxa-cliente').value = cliente.taxaEntrega >= 0 ? cliente.taxaEntrega.toFixed(2) : '0';
+      document.getElementById('input-pizzas').value = cliente.pizzasFavoritas || '';
+      document.getElementById('input-esfirras').value = cliente.esfirrasFavoritas || '';
+      document.getElementById('input-promocoes').checked = cliente.receberPromocoes;
+      
+      document.getElementById('modal-form').classList.remove('hidden');
+    }
+    
+    function confirmarExclusao(backendId, nome) {
+      const cliente = clientesData.find(c => c.__backendId === backendId);
+      if (!cliente) return;
+      
+      const card = event.target.closest('.card-hover');
+      const btnExcluir = event.target.closest('button');
+      
+      const confirmarBtn = document.createElement('button');
+      confirmarBtn.textContent = 'Confirmar Exclusão?';
+      confirmarBtn.className = 'bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all';
+      confirmarBtn.onclick = async () => await excluirCliente(backendId);
+      
+      const cancelarBtn = document.createElement('button');
+      cancelarBtn.textContent = 'Cancelar';
+      cancelarBtn.className = 'bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all ml-2';
+      cancelarBtn.onclick = () => {
+        btnExcluir.style.display = '';
+        confirmarBtn.remove();
+        cancelarBtn.remove();
+      };
+      
+      btnExcluir.style.display = 'none';
+      btnExcluir.parentElement.appendChild(confirmarBtn);
+      btnExcluir.parentElement.appendChild(cancelarBtn);
+      
+      setTimeout(() => {
+        if (confirmarBtn.parentElement) {
+          btnExcluir.style.display = '';
+          confirmarBtn.remove();
+          cancelarBtn.remove();
+        }
+      }, 5000);
+    }
+    
+    async function excluirCliente(backendId) {
+      const cliente = clientesData.find(c => c.__backendId === backendId);
+      if (!cliente) return;
+      
+      const result = await window.dataSdk.delete(cliente);
+      
+      if (result.isOk) {
+        mostrarToast('Cliente excluído com sucesso!', 'success');
+      } else {
+        mostrarToast('Erro ao excluir cliente. Tente novamente.', 'error');
+      }
+    }
+    
+    async function salvarCliente(event) {
+      event.preventDefault();
+      
+      if (clientesData.length >= 999 && !clienteEditando) {
+        mostrarToast('Limite máximo de 999 clientes atingido.', 'error');
+        return;
+      }
+      
+      const btnSalvar = document.getElementById('btn-salvar');
+      const textoOriginal = btnSalvar.innerHTML;
+      btnSalvar.innerHTML = '<span class="inline-block animate-pulse">Salvando...</span>';
+      btnSalvar.disabled = true;
+      
+      const bairro = document.getElementById('input-bairro-cliente').value.trim();
+      const taxaEntrega = parseFloat(document.getElementById('input-taxa-cliente').value) || 0;
+      
+      const dados = {
+        nome: document.getElementById('input-nome').value.trim(),
+        telefone: document.getElementById('input-telefone').value.trim(),
+        whatsapp: document.getElementById('input-whatsapp').value.trim(),
+        endereco: document.getElementById('input-endereco').value.trim(),
+        bairro: bairro,
+        taxaEntrega: taxaEntrega,
+        pizzasFavoritas: document.getElementById('input-pizzas').value.trim(),
+        esfirrasFavoritas: document.getElementById('input-esfirras').value.trim(),
+        receberPromocoes: document.getElementById('input-promocoes').checked
+      };
+      
+      let result;
+      
+      if (clienteEditando) {
+        const clienteAtualizado = { ...clienteEditando, ...dados };
+        result = await window.dataSdk.update(clienteAtualizado);
+      } else {
+        dados.dataCadastro = new Date().toISOString();
+        result = await window.dataSdk.create(dados);
+      }
+      
+      btnSalvar.innerHTML = textoOriginal;
+      btnSalvar.disabled = false;
+      
+      // Aguardar um pouco para garantir que o dado foi salvo
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      mostrarToast(
+        clienteEditando ? 'Cliente atualizado!' : 'Cliente cadastrado!',
+        'success'
+      );
+      fecharModal();
+    }
+    
+    // Modal Pedido
+    function abrirModalPedido() {
+      if (clientesData.length === 0) {
+        mostrarToast('Cadastre clientes primeiro!', 'error');
+        return;
+      }
+      
+      itensPedidoAtual = [];
+      document.getElementById('form-pedido').reset();
+      document.getElementById('input-taxa-entrega').value = '0';
+      document.getElementById('info-taxa').classList.add('hidden');
+      renderItensPedido();
+      document.getElementById('modal-pedido').classList.remove('hidden');
+    }
+    
+    function fecharModalPedido() {
+      document.getElementById('modal-pedido').classList.add('hidden');
+      itensPedidoAtual = [];
+      limparClienteSelecionado();
+      
+      // Limpar campos de taxa
+      document.getElementById('input-bairro').value = '';
+      document.getElementById('input-taxa-entrega').value = '0';
+      document.getElementById('info-taxa').classList.add('hidden');
+    }
+    
+    function salvarPedido(event) {
+      event.preventDefault();
+      
+      const clienteId = document.getElementById('cliente-selecionado-id').value;
+      const observacoes = document.getElementById('input-observacoes').value.trim();
+      const bairro = document.getElementById('input-bairro').value.trim();
+      const taxaEntrega = parseFloat(document.getElementById('input-taxa-entrega').value) || 0;
+      
+      if (!clienteId || !clienteSelecionado) {
+        mostrarToast('Selecione um cliente!', 'error');
+        return;
+      }
+      
+      if (itensPedidoAtual.length === 0) {
+        mostrarToast('Adicione itens ao pedido!', 'error');
+        return;
+      }
+      
+      if (!bairro) {
+        mostrarToast('Informe o bairro de entrega!', 'error');
+        return;
+      }
+      
+      const subtotalItens = itensPedidoAtual.reduce((sum, item) => sum + item.preco, 0);
+      const total = subtotalItens + taxaEntrega;
+      
+      const novoPedido = {
+        id: Date.now().toString(),
+        clienteId,
+        itens: itensPedidoAtual,
+        bairro,
+        taxaEntrega,
+        total,
+        observacoes,
+        status: 'pendente',
+        dataPedido: new Date().toISOString()
+      };
+      
+      pedidosData.push(novoPedido);
+      salvarPedidos();
+      
+      mostrarToast('Pedido criado com sucesso!', 'success');
+      fecharModalPedido();
+    }
+    
+    function atualizarStatusPedido(pedidoId, novoStatus) {
+      const pedido = pedidosData.find(p => p.id === pedidoId);
+      if (pedido) {
+        pedido.status = novoStatus;
+        salvarPedidos();
+        mostrarToast('Status atualizado!', 'success');
+      }
+    }
+    
+    function excluirPedido(pedidoId) {
+      pedidosData = pedidosData.filter(p => p.id !== pedidoId);
+      salvarPedidos();
+      mostrarToast('Pedido excluído!', 'success');
+    }
+    
+    // Modal Promoções
+    function abrirModalPromocoes() {
+      const clientesPromocoes = clientesData.filter(c => c.receberPromocoes);
+      
+      document.getElementById('count-promocoes').textContent = clientesPromocoes.length;
+      
+      const listaWhatsapp = document.getElementById('lista-whatsapp');
+      
+      if (clientesPromocoes.length === 0) {
+        listaWhatsapp.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">Nenhum cliente aceitou receber promoções.</p>';
+      } else {
+        listaWhatsapp.innerHTML = clientesPromocoes.map(cliente => `
+          <div class="bg-white border-2 border-gray-200 rounded-lg p-3 flex items-center justify-between hover:border-green-300 transition-all">
+            <div class="flex items-center space-x-3">
+              <div class="bg-green-100 p-2 rounded-lg">
+                <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="font-semibold text-gray-800">${escapeHtml(cliente.nome)}</p>
+                <p class="text-sm text-gray-600">${escapeHtml(cliente.whatsapp)}</p>
+              </div>
+            </div>
+            <button 
+              onclick="abrirWhatsapp('${escapeHtml(cliente.whatsapp)}', '${escapeHtml(cliente.nome)}')"
+              class="whatsapp-btn bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold transition-all flex items-center space-x-2 shadow-md"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+              </svg>
+              <span>Enviar</span>
+            </button>
+          </div>
+        `).join('');
+      }
+      
+      document.getElementById('modal-promocoes').classList.remove('hidden');
+    }
+    
+    function fecharModalPromocoes() {
+      document.getElementById('modal-promocoes').classList.add('hidden');
+    }
+    
+    function copiarWhatsapp(numero) {
+      navigator.clipboard.writeText(numero).then(() => {
+        mostrarToast('Número copiado!', 'success');
+      });
+    }
+    
+    function mostrarToast(mensagem, tipo = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast toast-animation ${tipo === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white px-6 py-4 rounded-lg shadow-lg`;
+      toast.innerHTML = `
+        <div class="flex items-center space-x-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            ${tipo === 'success' 
+              ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+              : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+            }
+          </svg>
+          <span class="font-semibold">${mensagem}</span>
+        </div>
+      `;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(400px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+    
+    function formatarData(isoString) {
+      const data = new Date(isoString);
+      return data.toLocaleDateString('pt-BR');
+    }
+    
+    function formatarDataHora(isoString) {
+      const data = new Date(isoString);
+      return data.toLocaleString('pt-BR');
+    }
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    function atualizarSelectClientes() {
+      // Função para manter compatibilidade
+    }
+    
+    // Event Listeners
+    document.getElementById('btn-novo-cliente').addEventListener('click', abrirModal);
+    document.getElementById('btn-promocoes').addEventListener('click', abrirModalPromocoes);
+    document.getElementById('btn-novo-pedido').addEventListener('click', abrirModalPedido);
+    document.getElementById('form-cliente').addEventListener('submit', salvarCliente);
+    document.getElementById('form-pedido').addEventListener('submit', salvarPedido);
+    document.getElementById('form-item-personalizado').addEventListener('submit', salvarItemPersonalizado);
+    document.getElementById('form-quantidade').addEventListener('submit', salvarItemComQuantidade);
+    
+    // Event listener para atualizar subtotal quando quantidade mudar
+    document.getElementById('input-quantidade').addEventListener('input', atualizarSubtotal);
+    document.getElementById('input-segundo-sabor').addEventListener('change', atualizarSubtotal);
+    
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      searchTerm = e.target.value;
+      renderClientes();
+    });
+    
+    // Element SDK
+    if (window.elementSdk) {
+      async function onConfigChange(config) {
+        const baseFont = config.font_family || defaultConfig.font_family;
+        const baseFontStack = 'system-ui, -apple-system, sans-serif';
+        const baseSize = config.font_size || defaultConfig.font_size;
+        
+        document.getElementById('nome-pizzaria').textContent = config.nome_pizzaria || defaultConfig.nome_pizzaria;
+        document.getElementById('slogan').textContent = config.slogan || defaultConfig.slogan;
+        document.getElementById('texto-btn-adicionar').textContent = config.botao_adicionar || defaultConfig.botao_adicionar;
+        document.getElementById('texto-btn-promocoes').textContent = `📢 ${config.botao_promocoes || defaultConfig.botao_promocoes}`;
+        
+        document.body.style.fontFamily = `${baseFont}, ${baseFontStack}`;
+        document.body.style.fontSize = `${baseSize}px`;
+        
+        const headers = document.querySelectorAll('h1, h2, h3');
+        headers.forEach(h => {
+          if (h.tagName === 'H1') h.style.fontSize = `${baseSize * 1.875}px`;
+          if (h.tagName === 'H2') h.style.fontSize = `${baseSize * 1.5}px`;
+          if (h.tagName === 'H3') h.style.fontSize = `${baseSize * 1.25}px`;
+        });
+      }
+      
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.primary_action_color || defaultConfig.primary_action_color,
+              set: (value) => {
+                config.primary_action_color = value;
+                window.elementSdk.setConfig({ primary_action_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => config.font_family || defaultConfig.font_family,
+            set: (value) => {
+              config.font_family = value;
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          },
+          fontSizeable: {
+            get: () => config.font_size || defaultConfig.font_size,
+            set: (value) => {
+              config.font_size = value;
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["nome_pizzaria", config.nome_pizzaria || defaultConfig.nome_pizzaria],
+          ["slogan", config.slogan || defaultConfig.slogan],
+          ["botao_adicionar", config.botao_adicionar || defaultConfig.botao_adicionar],
+          ["botao_promocoes", config.botao_promocoes || defaultConfig.botao_promocoes]
+        ])
+      });
+    }
+    
+    inicializarApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a227a0fa11ff198',t:'MTc2Mzc1MjExOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
