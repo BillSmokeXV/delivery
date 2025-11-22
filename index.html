@@ -7,6 +7,9 @@
   <script src="/_sdk/data_sdk.js"></script>
   <script src="/_sdk/element_sdk.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
   <style>
     body {
       box-sizing: border-box;
@@ -1995,5 +1998,39 @@
     
     inicializarApp();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a227a0fa11ff198',t:'MTc2Mzc1MjExOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a227a0fa11ff198',t:'MTc2Mzc1MjExOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAQULb1DbFB2JZdJUgtOwG1QJdt-T1luZ4",
+  authDomain: "lancheloop-d53dd.firebaseapp.com",
+  projectId: "lancheloop-d53dd",
+  storageBucket: "lancheloop-d53dd.firebasestorage.app",
+  messagingSenderId: "1092692948916",
+  appId: "1:1092692948916:web:8aa08433eb827a84b0a4e1",
+  measurementId: "G-LVSQHM9PJ9"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+document.getElementById("form-cliente").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const cliente = {
+        nome: document.getElementById("input-nome").value,
+        telefone: document.getElementById("input-telefone").value,
+        whatsapp: document.getElementById("input-whatsapp").value,
+        endereco: document.getElementById("input-endereco").value,
+        bairro: document.getElementById("input-bairro").value,
+        taxaEntrega: document.getElementById("input-taxa").value,
+        salgadosFavoritos: document.getElementById("input-salgados").value,
+        docesFavoritos: document.getElementById("input-doces").value,
+        criadoEm: new Date().toISOString()
+    };
+
+    await db.collection("clientes").add(cliente);
+    window.location.href = "index.html";
+});
+</script>
+
+</body>
+
 </html>
